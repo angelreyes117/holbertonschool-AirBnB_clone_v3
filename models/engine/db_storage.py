@@ -16,14 +16,14 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
-
 
 class DBStorage:
     """interaacts with the MySQL database"""
     __engine = None
     __session = None
+    class_dictionary = {"Amenity": Amenity, "City": City,
+                        "Place": Place, "Review": Review,
+                        "State": State, "User": User}
 
     def __init__(self):
         """Instantiate a DBStorage object"""
@@ -43,9 +43,10 @@ class DBStorage:
     def all(self, cls=None):
         """query on the current database session"""
         new_dict = {}
-        for clss in classes:
-            if cls is None or cls is classes[clss] or cls is clss:
-                objs = self.__session.query(classes[clss]).all()
+        for clss in self.class_dictionary:
+            if cls is None or cls is \
+                   self.class_dictionary[clss] or cls is clss:
+                objs = self.__session.query(self.class_dictionary[clss]).all()
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
                     new_dict[key] = obj
@@ -74,3 +75,25 @@ class DBStorage:
     def close(self):
         """call remove() method on the private session attribute"""
         self.__session.remove()
+
+    def get(self, cls, id):
+        """gets object by cls and id"""
+        if type(cls) is str:
+            cls = self.class_dictionary.get(cls)
+        if cls and id:
+            fetch = "{}.{}".format(cls.__name__, id)
+            all_obj = self.all(cls)
+            return all_obj.get(fetch)
+        return None
+
+    def count(self, cls=None):
+        """returns count of objs in cls"""
+        return (len(self.all(cls)))
+
+    def drop_table(self, cls):
+        """drops specified table"""
+        metadata = sqlalchemy.MetaData()
+        metadata.reflect(bind=self.__engine)
+        table = metadata.tables.get(cls.__tablename__)
+        self.__session.execute(table.delete())
+        self.save()
