@@ -20,7 +20,6 @@ import json
 import os
 import pep8
 import unittest
-
 DBStorage = db_storage.DBStorage
 classes = {"Amenity": Amenity, "City": City, "Place": Place,
            "Review": Review, "State": State, "User": User}
@@ -28,7 +27,6 @@ classes = {"Amenity": Amenity, "City": City, "Place": Place,
 
 class TestDBStorageDocs(unittest.TestCase):
     """Tests to check the documentation and style of DBStorage class"""
-
     @classmethod
     def setUpClass(cls):
         """Set up for the doc tests"""
@@ -44,7 +42,8 @@ class TestDBStorageDocs(unittest.TestCase):
     def test_pep8_conformance_test_db_storage(self):
         """Test tests/test_models/test_db_storage.py conforms to PEP8."""
         pep8s = pep8.StyleGuide(quiet=True)
-        result = pep8s.check_files(['tests/test_models/test_engine/test_db_storage.py'])
+        result = pep8s.check_files(['tests/test_models/test_engine/\
+test_db_storage.py'])
         self.assertEqual(result.total_errors, 0,
                          "Found code style errors (and warnings).")
 
@@ -71,17 +70,15 @@ class TestDBStorageDocs(unittest.TestCase):
                             "{:s} method needs a docstring".format(func[0]))
 
 
-@unittest.skipIf(isinstance(models.storage, FileStorage), "Testing FileStorage")
+@unittest.skipIf(type(models.storage) == FileStorage, "Testing FileStorage")
 class TestStateDBInstances(unittest.TestCase):
     """DBStorage State Tests"""
-
-    @classmethod
-    def tearDownClass(cls):
-        """Tidies up the tests removing storage objects"""
+    def tearDownClass():
+        """tidies up the tests removing storage objects"""
         storage.drop_table(State)
 
     def setUp(self):
-        """Initializes new BaseModel object for testing"""
+        """initializes new BaseModel object for testing"""
         self.state_one = State(name='OK')
         self.state_one.save()
         self.state_one_id = self.state_one.id
@@ -92,35 +89,31 @@ class TestStateDBInstances(unittest.TestCase):
         storage.reload()
 
     def test_count_meth(self):
-        """Tests count method for DBStorage"""
+        """tests count method for DBStorage"""
         total_states = storage.count(State)
         self.assertEqual(total_states, 2)
 
     def test_get_meth(self):
-        """Tests get method for DBStorage"""
+        """tests get method for DBStorage"""
         oklahoma_get = storage.get(State, self.state_one_id)
         self.assertEqual(oklahoma_get.name, 'OK')
 
 
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
-
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_returns_dict(self):
-        """Test that all returns a dictionary"""
+        """Test that all returns a dictionaty"""
         self.assertIs(type(models.storage.all()), dict)
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_all_no_class(self):
         """Test that all returns all rows when no class is passed"""
-        pass
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_new(self):
-        """Test that new adds an object to the database"""
-        pass
+        """test that new adds an object to the database"""
 
     @unittest.skipIf(models.storage_t != 'db', "not testing db storage")
     def test_save(self):
         """Test that save properly saves objects to file.json"""
-        pass
